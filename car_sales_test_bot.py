@@ -171,7 +171,7 @@ async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     await update.message.reply_text('Bye! Hope to talk to you again soon.', reply_markup=ReplyKeyboardRemove())
     return ConversationHandler.END
 
-api_key = os.getenv("API_KEY")
+api_key = os.getenv("JS_TUT_BOT_API_KEY")
 
 def main() -> None:
     """Run the bot."""
