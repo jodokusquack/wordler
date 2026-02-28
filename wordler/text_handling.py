@@ -30,7 +30,7 @@ def parse_wordle_share_text(wordle_share_text: str) -> dict:
         result['guesses'] = list(filter(lambda x: x != '', m['guesses'].split("\n")))  # filter to remove empty strings
 
         return result
-    
+
 
 def stats_reply_message(stats_dict: dict) -> str:
     if stats_dict['solved']:
@@ -38,7 +38,9 @@ def stats_reply_message(stats_dict: dict) -> str:
 Can you improve the next time? 👀"""
     else:
         if stats_dict['hard_mode']:
-            reply = f"""Oh no, maybe try without Hard mode?"""
+            reply = """Oh no, maybe try without Hard mode?"""
         else:
             reply = f"""Oh no, better luck next time. 😶‍🌫️
 Surely you would have gotten it on the {stats_dict['guesses_needed']}th try! """
+
+    return reply
