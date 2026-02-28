@@ -57,6 +57,37 @@ async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text(update.message.text)
 
 
+async def timer_echo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Add a job to the queue to echo a message back after a time delay."""
+    chat_id = update.effective_message.chat_id
+
+    # context.args extract everything after the command
+    # Example. /timer Hello there -> ['Hello', 'there']
+    text_to_echo = " ".join(context.args)
+
+    if not text_to_echo:
+        await update.message.reply_text("Usage: /timer <your message>")
+        return
+    
+    # Schedule the job
+    # .run_once(callback_function, delay_in_seconds, data_to_pass, chat_id)
+    context.job_queue.run_once(
+        callback=alarm,
+        when=5,
+        data=text_to_echo,
+        chat_id=chat_id
+    )
+
+    await update.message.reply_text("Got it! I'll echo that in 5 seconds.")
+
+
+async def alarm(context: ContextTypes.DEFAULT_TYPE) -> None:
+    """The function the JobQueue calls when the timer is up."""
+    job = context.job
+    # 'job.data' conatins the string we passe in the 'data' argument above
+    await context.bot.send_message(job.chat_id, text=f"{job.data}")
+
+
 def main() -> None:
     """Start the bot."""
     # Create the Application and pass it your bot's token.
@@ -65,6 +96,7 @@ def main() -> None:
     # on different commands - answer in Telegram
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("help", help_command))
+    application.add_handler(CommandHandler('timer', timer_echo))
 
     # on non command i.e message - echo the message on Telegram
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, echo))
