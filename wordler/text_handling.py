@@ -37,4 +37,8 @@ def stats_reply_message(stats_dict: dict) -> str:
         reply = f"""Congrats, you solved it in {stats_dict['guesses_needed']} tries. 🎈
 Can you improve the next time? 👀"""
     else:
-        reply = f
+        if stats_dict['hard_mode']:
+            reply = f"""Oh no, maybe try without Hard mode?"""
+        else:
+            reply = f"""Oh no, better luck next time. 😶‍🌫️
+Surely you would have gotten it on the {stats_dict['guesses_needed']}th try! """
