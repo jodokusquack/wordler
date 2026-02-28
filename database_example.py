@@ -1,6 +1,6 @@
 import sqlite3
 from telegram import Update
-from telegram.ext import Application, MessageHandler, filters, ContextTypes
+from telegram.ext import Application, MessageHandler, CommandHandler, filters, ContextTypes
 
 from dotenv import load_dotenv
 import os
@@ -55,12 +55,26 @@ async def track_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
     await update.message.reply_text(f"✅ Message received and saved, {user.first_name}!", do_quote=False)
 
 
+async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    user_id = update.effective_user.id
+
+    with sqlite3.connect("bot_history.db") as conn:
+        cursor = conn.cursor()
+
+        # Count messages for specific user
+        cursor.execute("SELECT COUNT(*) FROM messages WHERE user_id = ?", (user_id,))
+        total = cursor.fetchone()[0]
+
+    await update.message.reply_text(f"📊 You have recorded {total} messages in my database.")
+
+
 # --- MAIN ENGINE ---
 def main():
     init_db()  # Ensure the table exists before starting
 
     app = Application.builder().token(api_key).build()
 
+    app.add_handler(CommandHandler('stats', stats))
     # use a MessageHandler to catch all text that isn't a command
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, track_message))
 
