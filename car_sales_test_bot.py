@@ -13,6 +13,7 @@ logger = logging.getLogger(__name__)
 # states
 CAR_TYPE, CAR_COLOR, CAR_MILEAGE_DECISION, CAR_MILEAGE, PHOTO, SUMMARY = range(6)
 
+
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Starts the conversation and asks the user about their preferred car type."""
     reply_keyboard = [['Sedan', 'SUV', 'Sport', 'Electric']]
@@ -132,7 +133,7 @@ async def photo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     await update.message.reply_text('<b>Photo uploaded successfully.\n'
                                     'Let\'s summarize your selections.</b>',
                                     parse_mode='HTML'
-    )
+                                    )
     await summary(update, context)  # Proceed to summary
 
 
@@ -172,6 +173,7 @@ async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     return ConversationHandler.END
 
 api_key = os.getenv("JS_TUT_BOT_API_KEY")
+
 
 def main() -> None:
     """Run the bot."""
