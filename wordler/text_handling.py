@@ -5,7 +5,7 @@ import re
 def parse_wordle_share_text(wordle_share_text: str) -> dict:
     """Use a regex to extract the results from the automatically generated Wordle Share message."""
     regex = re.compile(
-        r"Wordle\s(?P<wordle_id>[\d+,]+)\s(?P<guesses_needed>[0-6X])/6(?P<hard_mode>\*?)\n{2}(?P<guesses>[🟨🟩⬛️⬜️\n]+[🟩🟩🟩🟩🟩])",
+        r"Wordle\s(?P<wordle_id>[\d+,.]+)\s(?P<guesses_needed>[0-6X])/6(?P<hard_mode>\*?)\n{2}(?P<guesses>(?:[🟨🟩⬛️⬜️]+\n?){1,6})",
         flags=re.MULTILINE | re.UNICODE
     )
     m = regex.search(wordle_share_text)
@@ -27,6 +27,14 @@ def parse_wordle_share_text(wordle_share_text: str) -> dict:
 
         result['hard_mode'] = bool(m['hard_mode'])
 
-        result['guesses'] = m['guesses'].split("\n")
+        result['guesses'] = list(filter(lambda x: x != '', m['guesses'].split("\n")))  # filter to remove empty strings
 
         return result
+    
+
+def stats_reply_message(stats_dict: dict) -> str:
+    if stats_dict['solved']:
+        reply = f"""Congrats, you solved it in {stats_dict['guesses_needed']} tries. 🎈
+Can you improve the next time? 👀"""
+    else:
+        reply = f
