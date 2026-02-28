@@ -1,5 +1,4 @@
 import sqlite3
-from datetime import datetime
 from telegram import Update
 from telegram.ext import Application, MessageHandler, filters, ContextTypes
 
@@ -27,12 +26,12 @@ def init_db():
     conn.close()
 
 
-def save_message(user_id, username, content):
+def save_message(user_id, username, content, timestamp):
     conn = sqlite3.connect("bot_history.db")
     cursor = conn.cursor()
     cursor.execute(
         "INSERT INTO messages (user_id, username, content, timestamp) VALUES (?, ?, ?, ?)",
-        (user_id, username, content, datetime.now().isoformat())
+        (user_id, username, content, timestamp)
     )
     conn.commit()
     conn.close()
@@ -42,19 +41,18 @@ def save_message(user_id, username, content):
 async def track_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     # 1. Extract data from the update
     user = update.effective_user
+    display_name = user.username or user.first_name
     text = update.message.text
-    current_chat_id = update.effective_chat.id
+    # current_chat_id = update.effective_chat.id
+    message_time = update.message.date
+    timestamp_str = message_time.isoformat()
 
     # 2. Save to SQLite
-    save_message(user.id, user.username, text)
+    save_message(user.id, display_name, text, timestamp_str)
 
     # 3. Optional: Confirm to the user
-    print(f"Saved message from {user.username}: {text}")
+    print(f"Saved message from {display_name}: {text}")
     await update.message.reply_text(f"✅ Message received and saved, {user.first_name}!", do_quote=False)
-    await context.bot.send_message(
-        chat_id=current_chat_id,
-        text="I've recorded this message in my logs."
-    )
 
 
 # --- MAIN ENGINE ---
