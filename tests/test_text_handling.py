@@ -55,6 +55,7 @@ test_case_8 = """Wordle 1.715 X/6
 ⬛🟨⬛⬛⬛
 ⬛🟨⬛🟨⬛"""
 
+
 # The test cases
 @pytest.mark.parametrize("input_text, expected_dict", [
     (test_case_1,
@@ -67,7 +68,7 @@ test_case_8 = """Wordle 1.715 X/6
 ⬛️🟨⬛️⬛️🟩
 🟩🟩🟩🟩🟩""".split('\n')
       }
-    ),
+     ),
     (test_case_2,
      {'wordle_id': 1715,
       'guesses_needed': 4,
@@ -78,7 +79,7 @@ test_case_8 = """Wordle 1.715 X/6
 🟩🟩🟩🟩⬛️
 🟩🟩🟩🟩🟩""".split('\n')
       }
-    ),
+     ),
     (test_case_3,
      {'wordle_id': 1713,
       'guesses_needed': 5,
@@ -90,7 +91,7 @@ test_case_8 = """Wordle 1.715 X/6
 ⬜️🟩🟩🟩🟩
 🟩🟩🟩🟩🟩""".split('\n')
       }
-    ),
+     ),
     (test_case_4,
      {'wordle_id': 1713,
       'guesses_needed': 2,
@@ -99,7 +100,7 @@ test_case_8 = """Wordle 1.715 X/6
       'guesses': """⬛️🟨⬛️⬛️🟨
 🟩🟩🟩🟩🟩""".split('\n')
       }
-    ),
+     ),
     (test_case_5,
      {'wordle_id': 1702,
       'guesses_needed': 1,
