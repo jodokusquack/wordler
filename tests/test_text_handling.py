@@ -46,6 +46,14 @@ Its pretty good right? ♥️
 test_case_7 = """I solved it too:
 it took me only 2/6 tries. I swear!"""
 
+test_case_8 = """Wordle 1.715 X/6
+
+⬛⬛⬛⬛🟨
+⬛🟨⬛⬛⬛
+⬛🟨⬛🟨⬛
+🟩⬛⬛⬛⬛
+⬛🟨⬛⬛⬛
+⬛🟨⬛🟨⬛"""
 
 # The test cases
 @pytest.mark.parametrize("input_text, expected_dict", [
@@ -113,6 +121,19 @@ it took me only 2/6 tries. I swear!"""
      ),
     (test_case_7,
      None
+     ),
+    (test_case_8,
+     {'wordle_id': 1715,
+      'guesses_needed': 7,
+      'solved': False,
+      'hard_mode': False,
+      'guesses': """⬛⬛⬛⬛🟨
+⬛🟨⬛⬛⬛
+⬛🟨⬛🟨⬛
+🟩⬛⬛⬛⬛
+⬛🟨⬛⬛⬛
+⬛🟨⬛🟨⬛""".split('\n')
+      }
      ),
     ])
 def test_parse_wordle_share_text(input_text, expected_dict):
