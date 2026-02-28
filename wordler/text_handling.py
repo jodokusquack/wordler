@@ -11,7 +11,6 @@ def parse_wordle_share_text(wordle_share_text: str) -> dict:
     m = regex.search(wordle_share_text)
 
     if not m:
-        print("Couldn't extract Wordle stats.")
         return None
     else:
         result = dict()
