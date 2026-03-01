@@ -62,7 +62,7 @@ def save_wordle(
 
 def extract_stats(user_id: int, include_unsolved: bool) -> dict:
     """Extract some stats for a user."""
-    with sqlite3.connect('wordles_stats.db') as conn:
+    with sqlite3.connect('wordle_stats.db') as conn:
         cursor = conn.cursor()
 
         # define query with ? to prevent sql injection
@@ -94,6 +94,27 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         rf"Hi {user.mention_html()}! Are you ready to play Wordle?",
         reply_markup=ForceReply(selective=True),
     )
+
+
+# command /stats
+async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Send a stats message to the user asking for it."""
+    user = update.effective_user
+    include_unsolved = False
+    if context.args:
+        if context.args[0].lower().startswith('y'):
+            include_unsolved = True
+
+    stats = extract_stats(user.id, include_unsolved)
+
+    # craft message with stats:
+    await update.message.reply_html(
+        rf"""Of course {user.mention_html()}! Here are the stats 📝 I have collected about you:
+
+        Total number of Wordles: {stats['no_of_guesses']} 🆒
+        Best score: {min(stats["guess_list"])} 🎯
+        Average score: {stats['average_score']:.3f}
+        """)
 
 
 # --- MESSAGE HANDLER ---
@@ -130,6 +151,7 @@ def main() -> None:
 
     # Command Handlers
     app.add_handler(CommandHandler("start", start))
+    app.add_handler(CommandHandler("stats", stats))
 
     # Message Handler
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, reply_wordle))
