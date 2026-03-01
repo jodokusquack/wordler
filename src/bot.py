@@ -1,7 +1,6 @@
 import os
 import logging
 import sqlite3
-from dotenv import load_dotenv
 
 from telegram import Update, ForceReply
 from telegram.ext import Application, MessageHandler, CommandHandler, filters, ContextTypes
@@ -10,12 +9,9 @@ from text_handling import parse_wordle_share_text, stats_reply_message
 
 
 # Env variables
-load_dotenv()
-api_key = os.getenv("WORDLER_BOT_API_KEY")
+api_key = os.getenv("WORDLER_API_KEY")
 # Enable logging
-logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
-)
+logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO)
 # set higher logging level for httpx to avoid all GET and POST requests being logged
 logging.getLogger("httpx").setLevel(logging.WARNING)
 logger = logging.getLogger(__name__)
