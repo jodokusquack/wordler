@@ -10,6 +10,7 @@ from text_handling import parse_wordle_share_text, stats_reply_message
 
 # Env variables
 api_key = os.getenv("WORDLER_API_KEY")
+database_path = os.getenv("DATABASE_PATH")
 # Enable logging
 logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO)
 # set higher logging level for httpx to avoid all GET and POST requests being logged
@@ -19,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 # --- DATABASE SETUP ---
 def init_db():
-    with sqlite3.connect("wordle_stats.db") as conn:
+    with sqlite3.connect(database_path) as conn:
         cursor = conn.cursor()
         cursor.execute('''
     CREATE TABLE IF NOT EXISTS wordles (
@@ -47,7 +48,7 @@ def save_wordle(
         guesses_needed: int,
         guesses: str) -> None:
     """Save a result to the wordles table."""
-    with sqlite3.connect('wordle_stats.db') as conn:
+    with sqlite3.connect(database_path) as conn:
         cursor = conn.cursor()
         cursor.execute(
             "INSERT INTO wordles (user_id, username, timestamp, wordle_id, hard_mode, solved, guesses_needed, guesses) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
@@ -58,7 +59,7 @@ def save_wordle(
 
 def extract_stats(user_id: int, include_unsolved: bool) -> dict:
     """Extract some stats for a user."""
-    with sqlite3.connect('wordle_stats.db') as conn:
+    with sqlite3.connect(database_path) as conn:
         cursor = conn.cursor()
 
         # define query with ? to prevent sql injection
