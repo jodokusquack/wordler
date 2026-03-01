@@ -2,6 +2,7 @@
 settings.json
 *.db
 *.sqlite
+example_bots/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
