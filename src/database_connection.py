@@ -67,3 +67,16 @@ def extract_stats(user_id: int, include_unsolved: bool) -> dict:
     }
 
     return stats
+
+
+def check_user_exists(user_id: int) -> bool:
+    """Check if a specific user already has an entry in the database."""
+    with sqlite3.connect(database_path) as conn:
+        cursor = conn.cursor()
+        query = "SELECT EXISTS(SELECT 1 FROM wordles WHERE user_id = ?)"
+        cursor.execute(query, (user_id,))
+        results = cursor.fetchall()
+
+    results = [row[0] for row in results]
+    exists = bool(results[0])
+    return exists

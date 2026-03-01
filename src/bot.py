@@ -5,7 +5,7 @@ from telegram import Update, ForceReply
 from telegram.ext import Application, MessageHandler, CommandHandler, filters, ContextTypes
 
 from text_handling import parse_wordle_share_text, stats_reply_message
-from database_connection import init_db, save_wordle, extract_stats
+from database_connection import init_db, save_wordle, extract_stats, check_user_exists
 
 
 # Env variables
@@ -32,21 +32,31 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send a stats message to the user asking for it."""
     user = update.effective_user
+    # determine if unsolved wordles should be included in the stats
     include_unsolved = False
     if context.args:
         if context.args[0].lower().startswith('y'):
             include_unsolved = True
 
-    stats = extract_stats(user.id, include_unsolved)
+    # check if the user is already in the database
+    user_exists = check_user_exists(user.id)
+    
+    if user_exists:
+        stats = extract_stats(user.id, include_unsolved)
 
-    # craft message with stats:
-    await update.message.reply_html(
-        rf"""Of course {user.mention_html()}! Here are the stats 📝 I have collected about you:
+        # craft message with stats:
+        await update.message.reply_html(
+            rf"""Of course {user.mention_html()}! Here are the stats 📝 I have collected about you:
 
-        Total number of Wordles: {stats['no_of_guesses']} 🆒
-        Best score: {min(stats["guess_list"])} 🎯
-        Average score: {stats['average_score']:.3f}
-        """)
+            Total number of Wordles: {stats['no_of_guesses']} 🆒
+            Best score: {min(stats["guess_list"])} 🎯
+            Average score: {stats['average_score']:.3f}
+            """)
+    else:
+        await update.message.reply_html(
+            "Sorry there are no Wordles on record for you." \
+            "You have to post some results before checking your stats."
+        )
 
 
 # --- MESSAGE HANDLER ---
