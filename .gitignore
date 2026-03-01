@@ -4,6 +4,7 @@ settings.json
 *.sqlite
 *.sql
 example_bots/
+mytest.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
