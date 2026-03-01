@@ -2,6 +2,7 @@
 settings.json
 *.db
 *.sqlite
+*.sql
 example_bots/
 
 # Byte-compiled / optimized / DLL files
