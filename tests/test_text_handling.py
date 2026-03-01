@@ -1,5 +1,5 @@
 import pytest
-from wordler.text_handling import parse_wordle_share_text
+from src.text_handling import parse_wordle_share_text
 
 test_case_1 = """Wordle 1,715 4/6*
 

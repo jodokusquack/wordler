@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 from telegram import Update, ForceReply
 from telegram.ext import Application, MessageHandler, CommandHandler, filters, ContextTypes
 
-from wordler.text_handling import parse_wordle_share_text, stats_reply_message
+from text_handling import parse_wordle_share_text, stats_reply_message
 
 
 # Env variables
