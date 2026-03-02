@@ -5,7 +5,7 @@ from telegram import Update
 from telegram.ext import Application, MessageHandler, CommandHandler, filters, ContextTypes
 
 from src.text_handling import parse_wordle_share_text, stats_reply_message
-from src.database_connection import init_db, save_wordle, extract_stats, check_user_exists
+from src.database_connection import init_db, save_wordle, extract_stats, check_user_exists, subscribe_chat, unsubscribe_chat
 
 
 # Env variables
@@ -58,6 +58,30 @@ async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         )
 
 
+# command /subscribe
+async def subscribe(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    chat_id = update.message.chat_id
+    res = subscribe_chat(chat_id)
+    if res == "already_subscribed":
+        message = "It seems like this chat is already subscribed! No need to do it again."
+    elif res == "success":
+        message = "Successfully subscribed. ✅"
+
+    await update.message.reply_text(message)
+
+
+# command /unsubscribe
+async def unsubscribe(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    chat_id = update.message.chat_id
+    res = unsubscribe_chat(chat_id)
+    if res == "not_subscribed":
+        message = "You weren't subscribed at all. Use /subscribe to add this chat to the subscription list."
+    else:
+        message = "Succesfully unsubscribed. Sad to see you leave 😔"
+
+    await update.message.reply_text(message)
+
+
 # --- MESSAGE HANDLER ---
 async def reply_wordle(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """If the message contains the Wordle Share string, extract the stats from it and send them back."""
@@ -99,6 +123,8 @@ def main() -> None:
     # Command Handlers
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("stats", stats))
+    app.add_handler(CommandHandler("subscribe", subscribe))
+    app.add_handler(CommandHandler("unsubscribe", unsubscribe))
 
     # Message Handler
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, reply_wordle))

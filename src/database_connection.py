@@ -28,6 +28,13 @@ class Wordle(Base):
     guesses: Mapped[str] = mapped_column(String)
 
 
+class SubscribedChat(Base):
+    __tablename__ = 'subscribed_chats'
+    id: Mapped[int] = mapped_column(primary_key=True)
+    chat_id: Mapped[int] = mapped_column(Integer, unique=True)
+    subscribed: Mapped[bool] = mapped_column(Boolean, default=True)  # default = True actually uses 'True' as the default value for this row
+
+
 def init_db():
     """Create tables if they don't exist."""
     Base.metadata.create_all(engine)
@@ -41,6 +48,31 @@ def save_wordle(**kwargs) -> None:
         new_wordle = Wordle(**kwargs)
         session.add(new_wordle)
         session.commit()
+
+
+def subscribe_chat(chat_id: int) -> str:
+    """Save a chat to the subscribed chats table."""
+    with SessionLocal() as session:
+        # check if already subsribed
+        if session.query(SubscribedChat).filter_by(chat_id=chat_id).first():
+            return 'already_subscribed'
+        else:
+            # add to database
+            session.add(SubscribedChat(chat_id=chat_id))
+            session.commit()
+            return "success"
+
+
+def unsubscribe_chat(chat_id: int) -> str:
+    """Delete a chat from the subscribed chats table."""
+    with SessionLocal() as session:
+        # check if chat is subsribed at all.
+        if session.query(SubscribedChat).filter_by(chat_id=chat_id).first():
+            session.query(SubscribedChat).filter_by(chat_id=chat_id).delete()
+            session.commit()
+            return "success"
+        else:
+            return "not_subscribed"
 
 
 def extract_stats(user_id: int, include_unsolved: bool) -> dict:
