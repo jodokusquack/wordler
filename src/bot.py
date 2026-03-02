@@ -1,7 +1,7 @@
 import os
 import logging
 
-from telegram import Update, ForceReply
+from telegram import Update
 from telegram.ext import Application, MessageHandler, CommandHandler, filters, ContextTypes
 
 from text_handling import parse_wordle_share_text, stats_reply_message
@@ -23,8 +23,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send a message when the command /start is issued."""
     user = update.effective_user
     await update.message.reply_html(
-        rf"Hi {user.mention_html()}! Are you ready to play Wordle?",
-        reply_markup=ForceReply(selective=True),
+        rf"Hi {user.mention_html()}! Are you ready to play Wordle?"
     )
 
 
@@ -40,7 +39,7 @@ async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
     # check if the user is already in the database
     user_exists = check_user_exists(user.id)
-    
+
     if user_exists:
         stats = extract_stats(user.id, include_unsolved)
 
@@ -54,7 +53,7 @@ async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             """)
     else:
         await update.message.reply_html(
-            "Sorry there are no Wordles on record for you." \
+            "Sorry there are no Wordles on record for you."
             "You have to post some results before checking your stats."
         )
 
@@ -70,18 +69,24 @@ async def reply_wordle(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     if result:
         # save result to database
         user = update.effective_user
-        user_id = user.id
-        username = user.username or user.first_name
-        timestamp = update.message.date.isoformat()
-        wordle_id = result['wordle_id']
-        hard_mode = result['hard_mode']
-        solved = result['solved']
-        guesses_needed = result['guesses_needed']
-        guesses = '\n'.join(result['guesses'])
+        wordle_answer = {
+            'user_id': user.id,
+            'username': user.username or user.first_name,
+            'timestamp': update.message.date.isoformat(),
+            'wordle_id': result['wordle_id'],
+            'hard_mode': result['hard_mode'],
+            'solved': result['solved'],
+            'guesses_needed': result['guesses_needed'],
+            'guesses': '\n'.join(result['guesses'])
+        }
 
-        save_wordle(user_id, username, timestamp, wordle_id, hard_mode, solved, guesses_needed, guesses)
+        # save the wordle to the database
+        save_wordle(**wordle_answer)
 
+        # create the answer text
         answer = stats_reply_message(result)
+
+        # send the message
         await update.message.reply_text(answer)
 
 

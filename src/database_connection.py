@@ -1,82 +1,73 @@
 import os
-import sqlite3
-
-# Env variables
-database_path = os.getenv("DATABASE_PATH")
-
+from sqlalchemy import create_engine, Integer, String, Boolean, select  # func, Column
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, sessionmaker
 
 # --- DATABASE SETUP ---
+DATABASE_URL = f"sqlite:///{os.getenv('DATABASE_PATH')}"
+
+engine = create_engine(DATABASE_URL)
+SessionLocal = sessionmaker(bind=engine)
+
+
+class Base(DeclarativeBase):
+    pass
+
+
+# --- MODEL DEFINITION ---
+class Wordle(Base):
+    __tablename__ = "wordles"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    user_id: Mapped[int] = mapped_column(Integer)
+    username: Mapped[str] = mapped_column(String)
+    timestamp: Mapped[str] = mapped_column(String)
+    wordle_id: Mapped[int] = mapped_column(Integer)
+    hard_mode: Mapped[bool] = mapped_column(Boolean)
+    solved: Mapped[bool] = mapped_column(Boolean)
+    guesses_needed: Mapped[int] = mapped_column(Integer)
+    guesses: Mapped[str] = mapped_column(String)
+
+
 def init_db():
-    with sqlite3.connect(database_path) as conn:
-        cursor = conn.cursor()
-        cursor.execute('''
-    CREATE TABLE IF NOT EXISTS wordles (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    user_id INTEGER,
-                    username TEXT,
-                    timestamp TEXT,
-                    wordle_id INTEGER,
-                    hard_mode BOOLEAN,
-                    solved BOOLEAN,
-                    guesses_needed INTEGER,
-                    guesses TEXT
-                    )
-                    ''')
-        conn.commit()
+    """Create tables if they don't exist."""
+    Base.metadata.create_all(engine)
 
 
-def save_wordle(
-        user_id: int,
-        username: str,
-        timestamp: str,
-        wordle_id: int,
-        hard_mode: bool,
-        solved: bool,
-        guesses_needed: int,
-        guesses: str) -> None:
+# --- CRUD OPERATIONS ---
+
+def save_wordle(**kwargs) -> None:
     """Save a result to the wordles table."""
-    with sqlite3.connect(database_path) as conn:
-        cursor = conn.cursor()
-        cursor.execute(
-            "INSERT INTO wordles (user_id, username, timestamp, wordle_id, hard_mode, solved, guesses_needed, guesses) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-            (user_id, username, timestamp, wordle_id, hard_mode, solved, guesses_needed, guesses)
-        )
-        conn.commit()
+    with SessionLocal() as session:
+        new_wordle = Wordle(**kwargs)
+        session.add(new_wordle)
+        session.commit()
 
 
 def extract_stats(user_id: int, include_unsolved: bool) -> dict:
-    """Extract some stats for a user."""
-    with sqlite3.connect(database_path) as conn:
-        cursor = conn.cursor()
+    """Extract stats for a user."""
+    with SessionLocal() as session:
+        stmt = select(Wordle.guesses_needed).where(Wordle.user_id == user_id)
 
-        # define query with ? to prevent sql injection
-        if include_unsolved:
-            query = "SELECT guesses_needed FROM wordles WHERE user_id = ?"
-        else:
-            query = "SELECT guesses_needed FROM wordles WHERE user_id = ? AND solved = 1"
-        cursor.execute(query, (user_id,))
-        results = cursor.fetchall()
+        if not include_unsolved:
+            # stmt = stmt.where(Wordle.solved == True)
+            stmt = stmt.where(Wordle.solved)
 
-        guess_list = [row[0] for row in results]
+        results = session.execute(stmt).scalars().all()
 
-    stats = {
-        'guess_list': guess_list,
-        'no_of_guesses': len(guess_list),
-        'total_number_of_guesses': sum(guess_list),
-        'average_score': sum(guess_list) / len(guess_list)
+    if not results:
+        return {'guess_list': [], 'no_of_guesses': 0, 'total_number_of_guesses': 0, 'average_score': 0}
+
+    return {
+        'guess_list': list(results),
+        'no_of_guesses': len(results),
+        'total_number_of_guesses': sum(results),
+        'average_score': sum(results) / len(results)
     }
-
-    return stats
 
 
 def check_user_exists(user_id: int) -> bool:
     """Check if a specific user already has an entry in the database."""
-    with sqlite3.connect(database_path) as conn:
-        cursor = conn.cursor()
-        query = "SELECT EXISTS(SELECT 1 FROM wordles WHERE user_id = ?)"
-        cursor.execute(query, (user_id,))
-        results = cursor.fetchall()
-
-    results = [row[0] for row in results]
-    exists = bool(results[0])
-    return exists
+    with SessionLocal() as session:
+        stmt = select(Wordle.id).where(Wordle.user_id == user_id).limit(1)
+        result = session.execute(stmt).first()
+    return result is not None
