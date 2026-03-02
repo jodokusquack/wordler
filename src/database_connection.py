@@ -75,6 +75,12 @@ def unsubscribe_chat(chat_id: int) -> str:
             return "not_subscribed"
 
 
+def get_subscribed_chats() -> list[int]:
+    """Get a list of all the subscribed chats."""
+    with SessionLocal() as session:
+        return [chat_id[0] for chat_id in session.query(SubscribedChat.chat_id).distinct()]
+
+
 def extract_stats(user_id: int, include_unsolved: bool) -> dict:
     """Extract stats for a user."""
     with SessionLocal() as session:

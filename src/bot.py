@@ -1,11 +1,13 @@
 import os
 import logging
+import datetime
+from zoneinfo import ZoneInfo
 
 from telegram import Update
 from telegram.ext import Application, MessageHandler, CommandHandler, filters, ContextTypes
 
 from src.text_handling import parse_wordle_share_text, stats_reply_message
-from src.database_connection import init_db, save_wordle, extract_stats, check_user_exists, subscribe_chat, unsubscribe_chat
+from src.database_connection import init_db, save_wordle, extract_stats, check_user_exists, subscribe_chat, unsubscribe_chat, get_subscribed_chats
 
 
 # Env variables
@@ -114,11 +116,20 @@ async def reply_wordle(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         await update.message.reply_text(answer)
 
 
+async def send_scheduled_messages(context: ContextTypes.DEFAULT_TYPE) -> None:
+    message = "Good Morning! This is a test message sent at 9:30."
+    chat_ids = get_subscribed_chats()
+    for chat_id in chat_ids:
+        print(chat_id)
+        await context.bot.send_message(chat_id=chat_id, text=message)
+
+
 def main() -> None:
     """Start the Bot."""
     init_db()
 
     app = Application.builder().token(api_key).build()
+    job_queue = app.job_queue
 
     # Command Handlers
     app.add_handler(CommandHandler("start", start))
@@ -128,6 +139,13 @@ def main() -> None:
 
     # Message Handler
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, reply_wordle))
+
+    # schedule regular messages
+    vienna_time = datetime.time(hour=9, minute=30, tzinfo=ZoneInfo("Europe/Vienna"))
+    job_queue.run_daily(
+        send_scheduled_messages,
+        time=vienna_time
+        )
 
     app.run_polling(allowed_updates=Update.ALL_TYPES)
 
