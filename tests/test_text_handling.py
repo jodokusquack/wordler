@@ -1,86 +1,33 @@
 import pytest
 from src.text_handling import parse_wordle_share_text
-
-test_case_1 = """Wordle 1,715 4/6*
-
-⬛️⬛️⬛️⬛️🟩
-⬛️⬛️⬛️⬛️🟩
-⬛️🟨⬛️⬛️🟩
-🟩🟩🟩🟩🟩"""
-
-test_case_2 = """Wordle 1715 4/6
-
-⬛️⬛️🟨⬛️⬛️
-🟨⬛️⬛️⬛️🟨
-🟩🟩🟩🟩⬛️
-🟩🟩🟩🟩🟩"""
-
-test_case_3 = """Wordle 1713 5/6
-
-⬜️⬜️⬜️⬜️🟨
-⬜️🟨🟨🟨⬜️
-⬜️🟩🟩🟨⬜️
-⬜️🟩🟩🟩🟩
-🟩🟩🟩🟩🟩"""
-
-test_case_4 = """Wordle 1,713 2/6*
-
-⬛️🟨⬛️⬛️🟨
-🟩🟩🟩🟩🟩"""
-
-test_case_5 = """Wordle 1702 1/6
-
-🟩🟩🟩🟩🟩"""
-
-test_case_6 = """Look at my score:
-Wordle 1,701 4/6
-
-⬜️🟨⬜️⬜️🟨
-⬜️⬜️🟨🟩⬜️
-🟨⬜️🟨🟩⬜️
-🟩🟩🟩🟩🟩
-
-Its pretty good right? ♥️
-"""
-
-test_case_7 = """I solved it too:
-it took me only 2/6 tries. I swear!"""
-
-test_case_8 = """Wordle 1.715 X/6
-
-⬛⬛⬛⬛🟨
-⬛🟨⬛⬛⬛
-⬛🟨⬛🟨⬛
-🟩⬛⬛⬛⬛
-⬛🟨⬛⬛⬛
-⬛🟨⬛🟨⬛"""
+from shared_test_cases import test_cases
 
 
 # The test cases
 @pytest.mark.parametrize("input_text, expected_dict", [
-    (test_case_1,
+    (test_cases['tc_success_1'],
      {'wordle_id': 1715,
       'guesses_needed': 4,
       'solved': True,
       'hard_mode': True,
       'guesses': """⬛️⬛️⬛️⬛️🟩
-⬛️⬛️⬛️⬛️🟩
+⬛⬛️⬛️⬛️🟩
 ⬛️🟨⬛️⬛️🟩
 🟩🟩🟩🟩🟩""".split('\n')
       }
      ),
-    (test_case_2,
+    (test_cases['tc_success_2'],
      {'wordle_id': 1715,
       'guesses_needed': 4,
       'solved': True,
       'hard_mode': False,
       'guesses': """⬛️⬛️🟨⬛️⬛️
 🟨⬛️⬛️⬛️🟨
-🟩🟩🟩🟩⬛️
+🟩⬛️🟩🟩⬛️
 🟩🟩🟩🟩🟩""".split('\n')
       }
      ),
-    (test_case_3,
+    (test_cases['tc_success_3'],
      {'wordle_id': 1713,
       'guesses_needed': 5,
       'solved': True,
@@ -92,7 +39,7 @@ test_case_8 = """Wordle 1.715 X/6
 🟩🟩🟩🟩🟩""".split('\n')
       }
      ),
-    (test_case_4,
+    (test_cases['tc_success_4'],
      {'wordle_id': 1713,
       'guesses_needed': 2,
       'solved': True,
@@ -101,7 +48,7 @@ test_case_8 = """Wordle 1.715 X/6
 🟩🟩🟩🟩🟩""".split('\n')
       }
      ),
-    (test_case_5,
+    (test_cases['tc_first_try'],
      {'wordle_id': 1702,
       'guesses_needed': 1,
       'solved': True,
@@ -109,7 +56,7 @@ test_case_8 = """Wordle 1.715 X/6
       'guesses': """🟩🟩🟩🟩🟩""".split('\n')
       }
      ),
-    (test_case_6,
+    (test_cases['tc_extra_text'],
      {'wordle_id': 1701,
       'guesses_needed': 4,
       'solved': True,
@@ -120,10 +67,10 @@ test_case_8 = """Wordle 1.715 X/6
 🟩🟩🟩🟩🟩""".split('\n')
       }
      ),
-    (test_case_7,
+    (test_cases['tc_wrong_text'],
      None
      ),
-    (test_case_8,
+    (test_cases['tc_fail_1'],
      {'wordle_id': 1715,
       'guesses_needed': 7,
       'solved': False,
