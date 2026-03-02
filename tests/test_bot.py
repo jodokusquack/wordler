@@ -1,7 +1,6 @@
 import pytest
 from unittest.mock import MagicMock, AsyncMock
 from src.bot import reply_wordle
-from src.database_connection import SessionLocal
 from shared_test_cases import test_cases
 
 
