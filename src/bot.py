@@ -113,7 +113,7 @@ async def reply_wordle(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         answer = stats_reply_message(result)
 
         # send the message
-        await update.message.reply_text(answer)
+        # await update.message.reply_text(answer)
 
 
 async def send_scheduled_messages(context: ContextTypes.DEFAULT_TYPE) -> None:
