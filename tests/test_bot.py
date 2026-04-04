@@ -1,7 +1,7 @@
 import pytest
 from unittest.mock import MagicMock, AsyncMock
-from src.bot import reply_wordle
-from shared_test_cases import test_cases
+from wordler.bot import reply_wordle
+from tests.shared_test_cases import test_cases
 
 
 @pytest.fixture
@@ -16,7 +16,7 @@ async def test_valid_message_creates_db_entry(mock_update, mocker):
     # Mock the database connection
     mock_db_session = MagicMock()
     # mock SessionLocal to return a Mock Session that supports the context manager protocol
-    mock_session = mocker.patch('src.database_connection.SessionLocal')
+    mock_session = mocker.patch('wordler.database_connection.SessionLocal')
     mock_session.return_value.__enter__.return_value = mock_db_session
 
     # Set the message text to a valid test case
@@ -40,7 +40,7 @@ async def test_invalid_message_does_not_create_db_entry(mock_update, mocker):
     # Mock the database connection
     mock_db_session = MagicMock()
     # mock SessionLocal to return a Mock Session that supports the context manager protocol
-    mock_session = mocker.patch('src.database_connection.SessionLocal')
+    mock_session = mocker.patch('wordler.database_connection.SessionLocal')
     mock_session.return_value.__enter__.return_value = mock_db_session
 
     # Set the message text to a valid test case

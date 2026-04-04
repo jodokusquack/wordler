@@ -1,6 +1,6 @@
 import pytest
-from src.text_handling import parse_wordle_share_text
-from shared_test_cases import test_cases
+from wordler.text_handling import parse_wordle_share_text
+from tests.shared_test_cases import test_cases
 
 
 # The test cases
