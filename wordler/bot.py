@@ -7,7 +7,7 @@ from telegram import Update
 from telegram.ext import Application, MessageHandler, CommandHandler, filters, ContextTypes
 
 from wordler.text_handling import parse_wordle_share_text, stats_reply_message
-from wordler.database_connection import init_db, save_wordle, extract_stats, check_user_exists, subscribe_chat, unsubscribe_chat, get_subscribed_chats
+from wordler.models import init_db, save_wordle, extract_stats, check_user_exists, subscribe_chat, unsubscribe_chat, get_subscribed_chats
 
 
 # Env variables
