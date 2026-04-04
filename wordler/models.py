@@ -1,4 +1,3 @@
-import os
 from sqlalchemy import Integer, Boolean
 from sqlalchemy.orm import (
     DeclarativeBase,
@@ -31,8 +30,3 @@ class SubscribedChat(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     chat_id: Mapped[int] = mapped_column(Integer, unique=True)
     subscribed: Mapped[bool] = mapped_column(Boolean, default=True)  # default = True actually uses 'True' as the default value for this row
-
-
-class UnimportedModel(Base):
-    __tablename__ = "unimported_models"
-    id = mapped_column(Integer, primary_key=True)
