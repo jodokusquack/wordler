@@ -32,7 +32,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 
 # command /stats
-async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE, session=None) -> None:
     """Send a stats message to the user asking for it."""
     user = update.effective_user
     # determine if unsolved wordles should be included in the stats
@@ -42,7 +42,8 @@ async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             include_unsolved = True
 
     # check if the user is already in the database
-    session = SessionLocal()
+    if session is None:
+        session = SessionLocal()
     user_exists = check_user_exists(session, user.id)
 
     if user_exists:
@@ -64,9 +65,11 @@ async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 
 # command /subscribe
-async def subscribe(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+async def subscribe(update: Update, context: ContextTypes.DEFAULT_TYPE, session=None) -> None:
     chat_id = update.message.chat_id
-    session = SessionLocal()
+
+    if session is None:
+        session = SessionLocal()
     res = subscribe_chat(session, chat_id)
     if res == "already_subscribed":
         message = "It seems like this chat is already subscribed! No need to do it again."
@@ -77,9 +80,12 @@ async def subscribe(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 
 # command /unsubscribe
-async def unsubscribe(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+async def unsubscribe(update: Update, context: ContextTypes.DEFAULT_TYPE, session=None) -> None:
     chat_id = update.message.chat_id
-    session = SessionLocal()
+
+    if session is None:
+        session = SessionLocal()
+
     res = unsubscribe_chat(session, chat_id)
     if res == "not_subscribed":
         message = "You weren't subscribed at all. Use /subscribe to add this chat to the subscription list."
@@ -123,9 +129,12 @@ async def reply_wordle(update: Update, context: ContextTypes.DEFAULT_TYPE, sessi
         # await update.message.reply_text(answer)
 
 
-async def send_scheduled_messages(context: ContextTypes.DEFAULT_TYPE) -> None:
+async def send_scheduled_messages(context: ContextTypes.DEFAULT_TYPE, session=None) -> None:
     message = "Good Morning! This is a test message sent at 9:30."
-    session = SessionLocal()
+
+    if session is None:
+        session = SessionLocal()
+
     chat_ids = get_subscribed_chats(session)
     for chat_id in chat_ids:
         print(chat_id)
