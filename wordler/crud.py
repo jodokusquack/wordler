@@ -1,4 +1,4 @@
-from wordler.models import Wordle, SubscribedChat
+from wordler.models import Wordle, SubscribedChat, User
 from sqlalchemy.orm import Session
 from sqlalchemy import select
 
@@ -70,3 +70,25 @@ def check_user_exists(session: Session, user_id: int) -> bool:
         stmt = select(Wordle.id).where(Wordle.user_id == user_id).limit(1)
         result = session.execute(stmt).first()
     return result is not None
+
+
+# User functions
+def create_user(session: Session, username: str, telegram_user_id: int):
+    user = User(username=username, telegram_user_id=telegram_user_id)
+    session.add(user)
+    session.commit()
+    session.refresh(user)  # refreshes the object to ensure all attributes are up-to-date
+    return user
+
+
+def get_user_by_telegram_id(session: Session, telegram_user_id: int):
+    return session.query(User).filter(User.telegram_user_id == telegram_user_id).first()
+
+
+def delete_user(session: Session, telegram_user_id: int):
+    user = get_user_by_telegram_id(session=session, telegram_user_id=telegram_user_id)
+    if user:
+        session.delete(user)
+        session.commit()
+        return True
+    return False

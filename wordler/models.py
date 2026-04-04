@@ -11,6 +11,13 @@ class Base(DeclarativeBase):
 
 
 # --- MODEL DEFINITION ---
+class User(Base):
+    __tablename__ = "users"
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    username: Mapped[str]
+    telegram_user_id: Mapped[int] = mapped_column(Integer, unique=True)
+
+
 class Wordle(Base):
     __tablename__ = "wordles"
 
