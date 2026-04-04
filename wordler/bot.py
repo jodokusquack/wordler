@@ -90,7 +90,7 @@ async def unsubscribe(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
 
 
 # --- MESSAGE HANDLER ---
-async def reply_wordle(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+async def reply_wordle(update: Update, context: ContextTypes.DEFAULT_TYPE, session=None) -> None:
     """If the message contains the Wordle Share string, extract the stats from it and send them back."""
     # get the text from the received update
     text = update.effective_message.text
@@ -112,7 +112,8 @@ async def reply_wordle(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         }
 
         # save the wordle to the database
-        session = SessionLocal()
+        if session is None:
+            session = SessionLocal()
         save_wordle(session, **wordle_answer)
 
         # create the answer text
