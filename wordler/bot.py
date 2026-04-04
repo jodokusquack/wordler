@@ -7,10 +7,12 @@ from telegram import Update
 from telegram.ext import Application, MessageHandler, CommandHandler, filters, ContextTypes
 
 from wordler.text_handling import parse_wordle_share_text, stats_reply_message
-from wordler.models import init_db, save_wordle, extract_stats, check_user_exists, subscribe_chat, unsubscribe_chat, get_subscribed_chats
+from wordler.database import init_db, SessionLocal
+from wordler.crud import save_wordle, subscribe_chat, unsubscribe_chat, get_subscribed_chats, extract_stats, check_user_exists
 
-
-# Env variables
+#################
+# Env variables #
+#################
 api_key = os.getenv("WORDLER_API_KEY")
 # Enable logging
 logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO)
@@ -40,7 +42,8 @@ async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             include_unsolved = True
 
     # check if the user is already in the database
-    user_exists = check_user_exists(user.id)
+    session = SessionLocal()
+    user_exists = check_user_exists(session, user.id)
 
     if user_exists:
         stats = extract_stats(user.id, include_unsolved)
@@ -63,7 +66,8 @@ async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 # command /subscribe
 async def subscribe(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     chat_id = update.message.chat_id
-    res = subscribe_chat(chat_id)
+    session = SessionLocal()
+    res = subscribe_chat(session, chat_id)
     if res == "already_subscribed":
         message = "It seems like this chat is already subscribed! No need to do it again."
     elif res == "success":
@@ -75,7 +79,8 @@ async def subscribe(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 # command /unsubscribe
 async def unsubscribe(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     chat_id = update.message.chat_id
-    res = unsubscribe_chat(chat_id)
+    session = SessionLocal()
+    res = unsubscribe_chat(session, chat_id)
     if res == "not_subscribed":
         message = "You weren't subscribed at all. Use /subscribe to add this chat to the subscription list."
     else:
@@ -107,7 +112,8 @@ async def reply_wordle(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         }
 
         # save the wordle to the database
-        save_wordle(**wordle_answer)
+        session = SessionLocal()
+        save_wordle(session, **wordle_answer)
 
         # create the answer text
         answer = stats_reply_message(result)
@@ -118,7 +124,8 @@ async def reply_wordle(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
 
 async def send_scheduled_messages(context: ContextTypes.DEFAULT_TYPE) -> None:
     message = "Good Morning! This is a test message sent at 9:30."
-    chat_ids = get_subscribed_chats()
+    session = SessionLocal()
+    chat_ids = get_subscribed_chats(session)
     for chat_id in chat_ids:
         print(chat_id)
         await context.bot.send_message(chat_id=chat_id, text=message)
