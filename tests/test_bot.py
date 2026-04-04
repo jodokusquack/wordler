@@ -16,14 +16,16 @@ async def test_valid_message_creates_db_entry(mock_update, mocker):
     # Mock the database connection
     mock_db_session = MagicMock()
     # mock SessionLocal to return a Mock Session that supports the context manager protocol
-    mock_session = mocker.patch('wordler.database_connection.SessionLocal')
+    mock_session = mocker.patch('wordler.database.SessionLocal')
     mock_session.return_value.__enter__.return_value = mock_db_session
+    # Debug: Print the mock session to verify it's being used
+    print("Mock session:", mock_session)
 
     # Set the message text to a valid test case
     mock_update.effective_message.text = test_cases['tc_success_1']
 
     # Call the handler
-    await reply_wordle(mock_update, AsyncMock())
+    await reply_wordle(mock_update, MagicMock())
 
     # check if the session was used to add and commit a Wordle
     assert mock_db_session.add.call_count == 1
@@ -40,7 +42,7 @@ async def test_invalid_message_does_not_create_db_entry(mock_update, mocker):
     # Mock the database connection
     mock_db_session = MagicMock()
     # mock SessionLocal to return a Mock Session that supports the context manager protocol
-    mock_session = mocker.patch('wordler.database_connection.SessionLocal')
+    mock_session = mocker.patch('wordler.database.SessionLocal')
     mock_session.return_value.__enter__.return_value = mock_db_session
 
     # Set the message text to a valid test case
