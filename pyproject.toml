@@ -17,3 +17,6 @@ classifiers = [
 ]
 license = "MIT"
 license-files = ["LICEN[CS]E*"]
+
+[tool.pytest.ini_options]
+addopts = "-sv"
