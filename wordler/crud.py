@@ -23,11 +23,15 @@ def create_user(session: Session, username: str, telegram_user_id: int):
     Raises:
         ValueError: If a user with the same telegram_user_id already exists.
     """
-    user = User(username=username, telegram_user_id=telegram_user_id)
-    session.add(user)
-    session.commit()
-    session.refresh(user)  # refreshes the object to ensure all attributes are up-to-date
-    return user
+    try:
+        user = User(username=username, telegram_user_id=telegram_user_id)
+        session.add(user)
+        session.commit()
+        session.refresh(user)  # refreshes the object to ensure all attributes are up-to-date
+        return user
+    except IntegrityError:
+        session.rollback()
+        raise ValueError(f"A User with the telegram_user_id {telegram_user_id} already exists.")
 
 
 def get_user_by_telegram_id(session: Session, telegram_user_id: int):
