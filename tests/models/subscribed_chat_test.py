@@ -55,5 +55,5 @@ class TestSubscribedChat:
         assert subscribed_chat is None
 
     def test_cannot_subscribe_identical_chat(test_db_session, test_chat):
-        new_chat = subscribe_chat(test_db_session, test_chat.telegram_chat_id)
-        assert new_chat is None
+        with pytest.raises(ValueError, match="already exists"):
+            subscribe_chat(test_db_session, test_chat.telegram_chat_id)
