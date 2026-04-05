@@ -36,3 +36,7 @@ class TestUser:
 
         user = get_user_by_telegram_id(test_db_session, test_user.telegram_user_id)
         assert user is None
+
+    def test_cannot_create_user_with_identical_id(self, test_db_session, test_user):
+        with pytest.raises(ValueError, match="already exists"):
+            create_user(test_db_session, username=test_user.username, telegram_user_id=test_user.telegram_user_id)
