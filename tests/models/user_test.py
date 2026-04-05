@@ -4,16 +4,6 @@ from wordler.models import User
 from wordler.crud import create_user, delete_user, get_user_by_telegram_id
 
 
-@pytest.fixture()
-def test_user(test_db_session):
-    user_data = {
-        'telegram_user_id': 12345,
-        'username': "test_user",
-    }
-    user = create_user(test_db_session, **user_data)
-    return user
-
-
 class TestUser:
     def test_create_user(self, test_db_session, test_user):
         """Test creating a new user."""

@@ -1,7 +1,9 @@
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+
 from wordler.models import Base
+from wordler.crud import create_user
 
 engine = create_engine("sqlite:///:memory:")
 # Create a session factory bound to the test engine
@@ -20,3 +22,13 @@ def test_db_session():
     session.close()
     # Teardown: Drop all tables after the test
     Base.metadata.drop_all(engine)
+
+
+@pytest.fixture()
+def test_user(test_db_session):
+    user_data = {
+        'telegram_user_id': 12345,
+        'username': "test_user",
+    }
+    user = create_user(test_db_session, **user_data)
+    return user
