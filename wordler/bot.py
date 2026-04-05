@@ -8,7 +8,14 @@ from telegram.ext import Application, MessageHandler, CommandHandler, filters, C
 
 from wordler.text_handling import parse_wordle_share_text, stats_reply_message
 from wordler.database import init_db, SessionLocal
-from wordler.crud import save_wordle, subscribe_chat, unsubscribe_chat, get_subscribed_chats, extract_stats, check_user_exists
+from wordler.crud import (
+    save_wordle,
+    subscribe_chat,
+    unsubscribe_chat,
+    get_all_subscribed_chats,
+    extract_stats,
+    check_user_exists,
+)
 
 #################
 # Env variables #
