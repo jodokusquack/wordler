@@ -12,9 +12,7 @@ from wordler.crud import (
     save_wordle,
     subscribe_chat,
     unsubscribe_chat,
-    get_all_subscribed_chats,
     extract_stats,
-    check_user_exists,
 )
 
 #################
