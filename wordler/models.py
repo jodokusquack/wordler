@@ -1,8 +1,12 @@
-from sqlalchemy import Integer, Boolean
+from datetime import datetime
+from typing import List
+
+from sqlalchemy import Integer, Boolean, DateTime, ForeignKey
 from sqlalchemy.orm import (
     DeclarativeBase,
     Mapped,
     mapped_column,
+    relationship
 )
 
 
@@ -17,6 +21,11 @@ class User(Base):
     username: Mapped[str]
     telegram_user_id: Mapped[int] = mapped_column(Integer, unique=True, index=True, nullable=False)
 
+    # Relationship to Wordle: 'cascade' ensures Wordles are deleted with the User
+    wordles: Mapped[List['Wordle']] = relationship(
+        back_populates="wordles", cascade="all, delete-orphan"
+    )
+
 
 class SubscribedChat(Base):
     __tablename__ = 'subscribed_chats'
@@ -29,11 +38,15 @@ class Wordle(Base):
     __tablename__ = "wordles"
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    user_id: Mapped[int]
-    username: Mapped[str]
-    timestamp: Mapped[str]
+    timestamp: Mapped[datetime] = mapped_column(DateTime, default=datetime.now())
     wordle_id: Mapped[int]
     hard_mode: Mapped[bool]
     solved: Mapped[bool]
     guesses_needed: Mapped[int]
     guesses: Mapped[str]
+
+    # Foreign Key linking to the User table
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
+
+    # Back-reference to the User object
+    user: Mapped["User"] = relationship(back_populates="wordles")
