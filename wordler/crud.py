@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Optional
 
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -153,11 +153,61 @@ def create_wordle(
         )
         session.add(wordle)
         session.commit()
+        session.refresh(wordle)
+        return wordle
     except IntegrityError:
         session.rollback()
         raise ValueError(
             f"The user with ID {user_id} already has a Wordle with ID {wordle_id}. Only one Wordle per user per day is allowed."
         )
+
+
+def get_wordle(
+    session: Session,
+    wordle_id: int,
+    user_id: int,
+) -> Wordle | None:
+    stmt = select(Wordle).where(
+        Wordle.wordle_id == wordle_id, Wordle.user_id == user_id
+    )
+
+    return session.scalar(stmt)
+
+
+def update_wordle(session: Session, wordle_id: int, user_id: int, **kwargs) -> Wordle:
+    wordle = get_wordle(session=session, wordle_id=wordle_id, user_id=user_id)
+
+    if not wordle:
+        raise ValueError(
+            f"Record update failed: No Wordle found with ID {wordle_id} "
+            f"assigned to user {user_id}."
+        )
+    for key, value in kwargs.items():
+        if hasattr(wordle, key):
+            setattr(wordle, key, value)
+        else:
+            raise AttributeError(
+                f"Update failed: The field '{key}' does not exist on the Wordle model. "
+                "Check your spelling or database schema."
+            )
+    try:
+        return get_wordle(session=session, wordle_id=wordle_id, user_id=user_id)
+    except IntegrityError:
+        session.rollback()
+        raise ValueError(f"Couldn't update wordle with ID {wordle_id}.")
+
+
+def delete_wordle(
+    session: Session,
+    wordle_id: int,
+    user_id: int,
+) -> bool:
+    wordle = get_wordle(session=session, wordle_id=wordle_id, user_id=user_id)
+    if wordle:
+        session.delete(wordle)
+        session.commit()
+        return True
+    return False
 
 
 #########
