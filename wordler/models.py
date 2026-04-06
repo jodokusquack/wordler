@@ -20,7 +20,7 @@ class User(Base):
 
     # Relationship to Wordle: 'cascade' ensures Wordles are deleted with the User
     wordles: Mapped[List["Wordle"]] = relationship(
-        back_populates="wordles", cascade="all, delete-orphan"
+        back_populates="user", cascade="all, delete-orphan"
     )
 
 
@@ -53,4 +53,4 @@ class Wordle(Base):
     user: Mapped["User"] = relationship(back_populates="wordles")
 
     # enforce uniqueness of wordle_id and user_id together at the DB level
-    __table_args__ = UniqueConstraint("wordle_id", "user_id", name="uq_user_wordle")
+    __table_args__ = (UniqueConstraint("wordle_id", "user_id", name="uq_user_wordle"),)
