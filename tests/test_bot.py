@@ -5,7 +5,7 @@ import pytest
 
 from tests.shared_test_cases import test_cases
 from wordler.bot import reply_wordle
-from wordler.models import Wordle
+from wordler.db.models import Wordle
 
 
 @pytest.fixture

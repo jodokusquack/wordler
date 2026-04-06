@@ -1,7 +1,7 @@
 import pytest
 
-from wordler.crud import create_user, delete_user, get_user_by_telegram_id
-from wordler.models import User
+from wordler.db.crud import create_user, delete_user, get_user_by_telegram_id
+from wordler.db.models import User
 
 
 class TestUser:

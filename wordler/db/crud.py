@@ -1,11 +1,11 @@
 from datetime import datetime
 from typing import Optional
 
-from sqlalchemy import select, update
+from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from wordler.models import SubscribedChat, User, Wordle
+from wordler.db.models import SubscribedChat, User, Wordle
 
 
 #########

@@ -2,8 +2,8 @@ import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from wordler.crud import create_user
-from wordler.models import Base
+from wordler.db.crud import create_user
+from wordler.db.models import Base
 
 engine = create_engine("sqlite:///:memory:")
 # Create a session factory bound to the test engine

@@ -1,12 +1,12 @@
 import pytest
 
-from wordler.crud import (
+from wordler.db.crud import (
     get_all_subscribed_chats,
     get_subscribed_chat,
     subscribe_chat,
     unsubscribe_chat,
 )
-from wordler.models import SubscribedChat
+from wordler.db.models import SubscribedChat
 
 telegram_test_id = 1045401580
 

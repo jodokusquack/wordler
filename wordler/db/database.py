@@ -3,7 +3,7 @@ import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from wordler.models import (
+from wordler.db.models import (
     Base,
 )  # Import all models here that should be included in the db.
 

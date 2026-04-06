@@ -3,8 +3,8 @@ from datetime import datetime
 import pytest
 from sqlalchemy import select
 
-from wordler.crud import create_wordle, delete_wordle, get_wordle, update_wordle
-from wordler.models import Wordle
+from wordler.db.crud import create_wordle, delete_wordle, get_wordle, update_wordle
+from wordler.db.models import Wordle
 
 
 @pytest.fixture()
