@@ -14,7 +14,7 @@ from telegram.ext import (
 
 from wordler.db.crud import extract_stats, subscribe_chat, unsubscribe_chat
 from wordler.db.database import SessionLocal, init_db
-from wordler.text_handling import parse_wordle_share_text, stats_reply_message
+from wordler.utilities.text_handling import parse_wordle_share_text, stats_reply_message
 
 #################
 # Env variables #
