@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import List
 
-from sqlalchemy import Integer, Boolean, DateTime, ForeignKey
+from sqlalchemy import Integer, Boolean, DateTime, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import (
     DeclarativeBase,
     Mapped,
@@ -50,3 +50,8 @@ class Wordle(Base):
 
     # Back-reference to the User object
     user: Mapped["User"] = relationship(back_populates="wordles")
+
+    # enforce uniqueness of wordle_id and user_id together at the DB level
+    __table_args__ = (
+        UniqueConstraint("wordle_id", "user_id", name="uq_user_wordle")
+    )
