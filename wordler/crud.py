@@ -1,8 +1,11 @@
-from sqlalchemy import select
-from sqlalchemy.orm import Session
-from sqlalchemy.exc import IntegrityError
+from datetime import datetime
+from typing import Optional
 
-from wordler.models import Wordle, SubscribedChat, User
+from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import Session
+
+from wordler.models import SubscribedChat, User, Wordle
 
 
 #########
@@ -27,11 +30,15 @@ def create_user(session: Session, username: str, telegram_user_id: int):
         user = User(username=username, telegram_user_id=telegram_user_id)
         session.add(user)
         session.commit()
-        session.refresh(user)  # refreshes the object to ensure all attributes are up-to-date
+        session.refresh(
+            user
+        )  # refreshes the object to ensure all attributes are up-to-date
         return user
     except IntegrityError:
         session.rollback()
-        raise ValueError(f"A User with the telegram_user_id {telegram_user_id} already exists.")
+        raise ValueError(
+            f"A User with the telegram_user_id {telegram_user_id} already exists."
+        )
 
 
 def get_user_by_telegram_id(session: Session, telegram_user_id: int):
@@ -50,7 +57,7 @@ def delete_user(session: Session, telegram_user_id: int):
 ####################
 # Subscribed Chats #
 ####################
-def subscribe_chat(session: Session, telegram_chat_id: int) -> str:
+def subscribe_chat(session: Session, telegram_chat_id: int) -> SubscribedChat:
     """
     Create a SubscribedChat in the database.
 
@@ -72,11 +79,17 @@ def subscribe_chat(session: Session, telegram_chat_id: int) -> str:
         return chat
     except IntegrityError:
         session.rollback()
-        raise ValueError(f"A Chat with the telegram_chat_id {telegram_chat_id} already exists.")
+        raise ValueError(
+            f"A Chat with the telegram_chat_id {telegram_chat_id} already exists."
+        )
 
 
 def get_subscribed_chat(session: Session, telegram_chat_id: int) -> int:
-    stmt = select(SubscribedChat).where(SubscribedChat.telegram_chat_id == telegram_chat_id).limit(1)
+    stmt = (
+        select(SubscribedChat)
+        .where(SubscribedChat.telegram_chat_id == telegram_chat_id)
+        .limit(1)
+    )
     chat = session.scalar(stmt)
     return chat
 
@@ -100,12 +113,51 @@ def get_all_subscribed_chats(session: Session) -> list[int]:
 ###########
 # Wordles #
 ###########
-def save_wordle(session: Session, **kwargs) -> None:
-    """Save a result to the wordles table."""
-    with session:
-        new_wordle = Wordle(**kwargs)
-        session.add(new_wordle)
+def create_wordle(
+    session: Session,
+    timestamp: Optional[datetime],
+    wordle_id: int,
+    hard_mode: bool,
+    solved: bool,
+    guesses_needed: int,
+    guesses: str,
+    user_id: int,
+) -> Wordle:
+    """
+    Save a Wordle in the database.
+
+    Args:
+        session: SQLAlchemy database session.
+        timestamp: Optional datetime when the wordle was posted.
+        wordle_id: Id of the Wordle.
+        hard_mode: Boolean if the Wordle was tried in hard mode or not.
+        solved: Boolean if the Wordle was succesfully solved or not.
+        guesses_needed: How many guessses were needed, 7 indicates unsuccesful solve.
+        guesses: The emoji string containing the green, yellow and grey positions for each guess.
+
+    Returns:
+        Wordle: The newly created Wordle.
+
+    Raises:
+        ValueError: If a Wordle with the same wordle_id and user_id already exists.
+    """
+    try:
+        wordle = Wordle(
+            timestamp=timestamp,
+            wordle_id=wordle_id,
+            hard_mode=hard_mode,
+            solved=solved,
+            guesses_needed=guesses_needed,
+            guesses=guesses,
+            user_id=user_id,
+        )
+        session.add(wordle)
         session.commit()
+    except IntegrityError:
+        session.rollback()
+        raise ValueError(
+            f"The user with ID {user_id} already has a Wordle with ID {wordle_id}. Only one Wordle per user per day is allowed."
+        )
 
 
 #########
@@ -123,11 +175,16 @@ def extract_stats(session: Session, user_id: int, include_unsolved: bool) -> dic
         results = session.execute(stmt).scalars().all()
 
     if not results:
-        return {'guess_list': [], 'no_of_guesses': 0, 'total_number_of_guesses': 0, 'average_score': 0}
+        return {
+            "guess_list": [],
+            "no_of_guesses": 0,
+            "total_number_of_guesses": 0,
+            "average_score": 0,
+        }
 
     return {
-        'guess_list': list(results),
-        'no_of_guesses': len(results),
-        'total_number_of_guesses': sum(results),
-        'average_score': sum(results) / len(results)
+        "guess_list": list(results),
+        "no_of_guesses": len(results),
+        "total_number_of_guesses": sum(results),
+        "average_score": sum(results) / len(results),
     }
