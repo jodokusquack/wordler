@@ -1,26 +1,29 @@
-import os
-import logging
 import datetime
+import logging
+import os
 from zoneinfo import ZoneInfo
 
 from telegram import Update
-from telegram.ext import Application, MessageHandler, CommandHandler, filters, ContextTypes
-
-from wordler.text_handling import parse_wordle_share_text, stats_reply_message
-from wordler.database import init_db, SessionLocal
-from wordler.crud import (
-    save_wordle,
-    subscribe_chat,
-    unsubscribe_chat,
-    extract_stats,
+from telegram.ext import (
+    Application,
+    CommandHandler,
+    ContextTypes,
+    MessageHandler,
+    filters,
 )
+
+from wordler.crud import extract_stats, save_wordle, subscribe_chat, unsubscribe_chat
+from wordler.database import SessionLocal, init_db
+from wordler.text_handling import parse_wordle_share_text, stats_reply_message
 
 #################
 # Env variables #
 #################
 api_key = os.getenv("WORDLER_API_KEY")
 # Enable logging
-logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO)
+logging.basicConfig(
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
+)
 # set higher logging level for httpx to avoid all GET and POST requests being logged
 logging.getLogger("httpx").setLevel(logging.WARNING)
 logger = logging.getLogger(__name__)
@@ -37,13 +40,15 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 
 # command /stats
-async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE, session=None) -> None:
+async def stats(
+    update: Update, context: ContextTypes.DEFAULT_TYPE, session=None
+) -> None:
     """Send a stats message to the user asking for it."""
     user = update.effective_user
     # determine if unsolved wordles should be included in the stats
     include_unsolved = False
     if context.args:
-        if context.args[0].lower().startswith('y'):
+        if context.args[0].lower().startswith("y"):
             include_unsolved = True
 
     # check if the user is already in the database
@@ -61,7 +66,8 @@ async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE, session=None
             Total number of Wordles: {stats['no_of_guesses']} 🆒
             Best score: {min(stats["guess_list"])} 🎯
             Average score: {stats['average_score']:.3f}
-            """)
+            """
+        )
     else:
         await update.message.reply_html(
             "Sorry there are no Wordles on record for you."
@@ -70,14 +76,18 @@ async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE, session=None
 
 
 # command /subscribe
-async def subscribe(update: Update, context: ContextTypes.DEFAULT_TYPE, session=None) -> None:
+async def subscribe(
+    update: Update, context: ContextTypes.DEFAULT_TYPE, session=None
+) -> None:
     chat_id = update.message.chat_id
 
     if session is None:
         session = SessionLocal()
     res = subscribe_chat(session, chat_id)
     if res == "already_subscribed":
-        message = "It seems like this chat is already subscribed! No need to do it again."
+        message = (
+            "It seems like this chat is already subscribed! No need to do it again."
+        )
     elif res == "success":
         message = "Successfully subscribed. ✅"
 
@@ -85,7 +95,9 @@ async def subscribe(update: Update, context: ContextTypes.DEFAULT_TYPE, session=
 
 
 # command /unsubscribe
-async def unsubscribe(update: Update, context: ContextTypes.DEFAULT_TYPE, session=None) -> None:
+async def unsubscribe(
+    update: Update, context: ContextTypes.DEFAULT_TYPE, session=None
+) -> None:
     chat_id = update.message.chat_id
 
     if session is None:
@@ -101,7 +113,9 @@ async def unsubscribe(update: Update, context: ContextTypes.DEFAULT_TYPE, sessio
 
 
 # --- MESSAGE HANDLER ---
-async def reply_wordle(update: Update, context: ContextTypes.DEFAULT_TYPE, session=None) -> None:
+async def reply_wordle(
+    update: Update, context: ContextTypes.DEFAULT_TYPE, session=None
+) -> None:
     """If the message contains the Wordle Share string, extract the stats from it and send them back."""
     # get the text from the received update
     text = update.effective_message.text
@@ -112,14 +126,14 @@ async def reply_wordle(update: Update, context: ContextTypes.DEFAULT_TYPE, sessi
         # save result to database
         user = update.effective_user
         wordle_answer = {
-            'user_id': user.id,
-            'username': user.username or user.first_name,
-            'timestamp': update.message.date.isoformat(),
-            'wordle_id': result['wordle_id'],
-            'hard_mode': result['hard_mode'],
-            'solved': result['solved'],
-            'guesses_needed': result['guesses_needed'],
-            'guesses': '\n'.join(result['guesses'])
+            "user_id": user.id,
+            "username": user.username or user.first_name,
+            "timestamp": update.message.date.isoformat(),
+            "wordle_id": result["wordle_id"],
+            "hard_mode": result["hard_mode"],
+            "solved": result["solved"],
+            "guesses_needed": result["guesses_needed"],
+            "guesses": "\n".join(result["guesses"]),
         }
 
         # save the wordle to the database
@@ -134,7 +148,9 @@ async def reply_wordle(update: Update, context: ContextTypes.DEFAULT_TYPE, sessi
         # await update.message.reply_text(answer)
 
 
-async def send_scheduled_messages(context: ContextTypes.DEFAULT_TYPE, session=None) -> None:
+async def send_scheduled_messages(
+    context: ContextTypes.DEFAULT_TYPE, session=None
+) -> None:
     message = "Good Morning! This is a test message sent at 9:30."
 
     if session is None:
@@ -164,13 +180,10 @@ def main() -> None:
 
     # schedule regular messages
     vienna_time = datetime.time(hour=9, minute=30, tzinfo=ZoneInfo("Europe/Vienna"))
-    job_queue.run_daily(
-        send_scheduled_messages,
-        time=vienna_time
-        )
+    job_queue.run_daily(send_scheduled_messages, time=vienna_time)
 
     app.run_polling(allowed_updates=Update.ALL_TYPES)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

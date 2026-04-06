@@ -1,10 +1,11 @@
-import pytest
 from datetime import datetime
-from unittest.mock import MagicMock, AsyncMock
+from unittest.mock import AsyncMock, MagicMock
 
+import pytest
+
+from tests.shared_test_cases import test_cases
 from wordler.bot import reply_wordle
 from wordler.models import Wordle
-from tests.shared_test_cases import test_cases
 
 
 @pytest.fixture
@@ -16,7 +17,7 @@ def mock_update():
 async def test_valid_message_creates_db_entry(test_db_session, mock_update, mocker):
     # Set the message text to a valid test case
     message = MagicMock()
-    message.text = test_cases['tc_success_1']
+    message.text = test_cases["tc_success_1"]
     mock_update.effective_message = message
     # Set the user to the correct one
     user = MagicMock()
@@ -37,9 +38,11 @@ async def test_valid_message_creates_db_entry(test_db_session, mock_update, mock
 
 
 @pytest.mark.asyncio
-async def test_invalid_message_does_not_create_db_entry(test_db_session, mock_update, mocker):
+async def test_invalid_message_does_not_create_db_entry(
+    test_db_session, mock_update, mocker
+):
     # Set the message text to an invalid test case
-    mock_update.effective_message.text = test_cases['tc_wrong_text']
+    mock_update.effective_message.text = test_cases["tc_wrong_text"]
 
     # Call the handler
     await reply_wordle(mock_update, MagicMock(), session=test_db_session)

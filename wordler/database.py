@@ -3,9 +3,9 @@ import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from wordler.models import (  # Import all models here that should be included in the db.
+from wordler.models import (
     Base,
-)
+)  # Import all models here that should be included in the db.
 
 ##########################
 # --- DATABASE SETUP --- #
@@ -19,4 +19,6 @@ def init_db():
 
 
 # Create a session factory
-SessionLocal = sessionmaker(bind=engine)  # SessionLocal is a factory for creating sessions
+SessionLocal = sessionmaker(
+    bind=engine
+)  # SessionLocal is a factory for creating sessions
