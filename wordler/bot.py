@@ -12,7 +12,7 @@ from telegram.ext import (
     filters,
 )
 
-from wordler.db.crud import extract_stats, save_wordle, subscribe_chat, unsubscribe_chat
+from wordler.db.crud import extract_stats, subscribe_chat, unsubscribe_chat
 from wordler.db.database import SessionLocal, init_db
 from wordler.text_handling import parse_wordle_share_text, stats_reply_message
 
