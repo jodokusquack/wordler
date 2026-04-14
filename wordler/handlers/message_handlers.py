@@ -16,19 +16,19 @@ async def reply_wordle(
     text = update.effective_message.text
     user_id = update.effective_user.id
 
-    # try to get the user and create a new user if it doesn't exist
-    user = get_user_by_telegram_id(session=session, telegram_user_id=user_id)
-    if not user:
-        telegram_username = (
-            update.effective_user.username or update.effective_user.first_name
-        )  # sometimes telegram doesn't share a users username so we might need to use the firstname
-        user = create_user(
-            session=session, username=telegram_username, telegram_user_id=user_id
-        )
-
     # try to parse the text and extract the stats
     result = parse_wordle_share_text(text)
-    if result:
+    if result:  # ONLY create a user and wordle if we can parse a wordle result
+        # try to get the user and create a new user if it doesn't exist
+        user = get_user_by_telegram_id(session=session, telegram_user_id=user_id)
+        if not user:
+            telegram_username = (
+                update.effective_user.username or update.effective_user.first_name
+            )  # sometimes telegram doesn't share a users username so we might need to use the firstname
+            user = create_user(
+                session=session, username=telegram_username, telegram_user_id=user_id
+            )
+
         wordle_info = {
             "timestamp": update.message.date,
             "wordle_id": result["wordle_id"],
