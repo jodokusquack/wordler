@@ -29,7 +29,7 @@ def create_user(session: Session, username: str, telegram_user_id: int):
     try:
         user = User(username=username, telegram_user_id=telegram_user_id)
         session.add(user)
-        session.commit()
+        session.flush()
         session.refresh(
             user
         )  # refreshes the object to ensure all attributes are up-to-date
@@ -51,7 +51,7 @@ def delete_user(session: Session, telegram_user_id: int):
     user = get_user_by_telegram_id(session=session, telegram_user_id=telegram_user_id)
     if user:
         session.delete(user)
-        session.commit()
+        session.flush()
         return True
     return False
 
@@ -76,7 +76,7 @@ def subscribe_chat(session: Session, telegram_chat_id: int) -> SubscribedChat:
     try:
         chat = SubscribedChat(telegram_chat_id=telegram_chat_id)
         session.add(chat)
-        session.commit()
+        session.flush()
         session.refresh(chat)
         return chat
     except IntegrityError:
@@ -101,7 +101,7 @@ def unsubscribe_chat(session: Session, telegram_chat_id: int) -> str:
     chat = get_subscribed_chat(session=session, telegram_chat_id=telegram_chat_id)
     if chat:
         session.delete(chat)
-        session.commit()
+        session.flush()
         return True
     return False
 
@@ -154,7 +154,7 @@ def create_wordle(
             user_id=user_id,
         )
         session.add(wordle)
-        session.commit()
+        session.flush()
         session.refresh(wordle)
         return wordle
     except IntegrityError:
@@ -207,7 +207,7 @@ def delete_wordle(
     wordle = get_wordle(session=session, wordle_id=wordle_id, user_id=user_id)
     if wordle:
         session.delete(wordle)
-        session.commit()
+        session.flush()
         return True
     return False
 
