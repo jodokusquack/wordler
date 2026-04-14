@@ -2,22 +2,19 @@ from telegram import Update
 from telegram.ext import ContextTypes
 
 from wordler.db.crud import create_user, create_wordle, get_user_by_telegram_id
-from wordler.db.database import SessionLocal
+from wordler.db.database import provide_session
 from wordler.utilities.text_handling import parse_wordle_share_text
 
 
 # --- MESSAGE HANDLER ---
+@provide_session
 async def reply_wordle(
-    update: Update, context: ContextTypes.DEFAULT_TYPE, session=None
+    update: Update, context: ContextTypes.DEFAULT_TYPE, session
 ) -> None:
     """If the message contains the Wordle Share string, extract the stats from it and send them back."""
     # get the info from the update
     text = update.effective_message.text
     user_id = update.effective_user.id
-
-    # create a session
-    if session is None:
-        session = SessionLocal()
 
     # try to get the user and create a new user if it doesn't exist
     user = get_user_by_telegram_id(session=session, telegram_user_id=user_id)
