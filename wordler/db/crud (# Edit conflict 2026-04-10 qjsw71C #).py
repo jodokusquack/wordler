@@ -42,9 +42,7 @@ def create_user(session: Session, username: str, telegram_user_id: int):
 
 
 def get_user_by_telegram_id(session: Session, telegram_user_id: int):
-    stmt = select(User).where(User.telegram_user_id == telegram_user_id).limit(1)
-    user = session.scalar(stmt)
-    return user
+    return session.query(User).filter(User.telegram_user_id == telegram_user_id).first()
 
 
 def delete_user(session: Session, telegram_user_id: int):
